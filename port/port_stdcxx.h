@@ -52,6 +52,7 @@ class LOCKABLE Mutex {
   Mutex(const Mutex&) = delete;
   Mutex& operator=(const Mutex&) = delete;
 
+  //网上资料显示这里的宏主要是为了辅助编译器进行线程安全检查，不影响功能，暂时放过。
   void Lock() EXCLUSIVE_LOCK_FUNCTION() { mu_.lock(); }
   void Unlock() UNLOCK_FUNCTION() { mu_.unlock(); }
   void AssertHeld() ASSERT_EXCLUSIVE_LOCK() {}
@@ -64,18 +65,25 @@ class LOCKABLE Mutex {
 // Thinly wraps std::condition_variable.
 class CondVar {
  public:
+ 
+  //唯一的构造函数
   explicit CondVar(Mutex* mu) : mu_(mu) { assert(mu != nullptr); }
   ~CondVar() = default;
 
   CondVar(const CondVar&) = delete;
   CondVar& operator=(const CondVar&) = delete;
 
+  //等待mutex，被notify之后，保持mutex的上锁状态。
   void Wait() {
     std::unique_lock<std::mutex> lock(mu_->mu_, std::adopt_lock);
     cv_.wait(lock);
     lock.release();
   }
+
+  //notify_one
   void Signal() { cv_.notify_one(); }
+
+  //notify_all
   void SignalAll() { cv_.notify_all(); }
 
  private:

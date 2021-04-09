@@ -346,14 +346,20 @@ class PosixWritableFile final : public WritableFile {
 
   Status SyncDirIfManifest() {
     Status status;
+
+    //不是manifest，不Sync
     if (!is_manifest_) {
       return status;
     }
 
+    //kOpenBaseFlags = 0;
+    //只读打开文件
     int fd = ::open(dirname_.c_str(), O_RDONLY | kOpenBaseFlags);
     if (fd < 0) {
+      //打开失败，生成status
       status = PosixError(dirname_, errno);
     } else {
+      //同步
       status = SyncFd(fd, dirname_);
       ::close(fd);
     }
@@ -367,7 +373,7 @@ class PosixWritableFile final : public WritableFile {
   // The path argument is only used to populate the description string in the
   // returned Status if an error occurs.
   static Status SyncFd(int fd, const std::string& fd_path) {
-#if HAVE_FULLFSYNC
+#if HAVE_FULLFSYNC // = 1
     // On macOS and iOS, fsync() doesn't guarantee durability past power
     // failures. fcntl(F_FULLFSYNC) is required for that purpose. Some
     // filesystems don't support fcntl(F_FULLFSYNC), and require a fallback to
@@ -377,7 +383,7 @@ class PosixWritableFile final : public WritableFile {
     }
 #endif  // HAVE_FULLFSYNC
 
-#if HAVE_FDATASYNC
+#if HAVE_FDATASYNC // = 0
     bool sync_success = ::fdatasync(fd) == 0;
 #else
     bool sync_success = ::fsync(fd) == 0;
@@ -386,6 +392,7 @@ class PosixWritableFile final : public WritableFile {
     if (sync_success) {
       return Status::OK();
     }
+    //出错，生成错误Status
     return PosixError(fd_path, errno);
   }
 

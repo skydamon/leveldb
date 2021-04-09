@@ -20,6 +20,7 @@ namespace leveldb {
 //     ... some complex code, possibly with multiple return paths ...
 //   }
 
+//这就是一个为了自动释放锁而存在的东西，析构
 class SCOPED_LOCKABLE MutexLock {
  public:
   explicit MutexLock(port::Mutex* mu) EXCLUSIVE_LOCK_FUNCTION(mu) : mu_(mu) {

@@ -24,6 +24,8 @@
 
 namespace leveldb {
 
+
+//Slice就是一个const char* data 和一个size，当成std::string看
 class LEVELDB_EXPORT Slice {
  public:
   // Create an empty slice.

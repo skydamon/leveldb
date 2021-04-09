@@ -32,6 +32,8 @@ class Slice;
 
 class LEVELDB_EXPORT WriteBatch {
  public:
+
+  //Handler是个抽象类，只有Put和Delete接口，操作对象是Slice
   class LEVELDB_EXPORT Handler {
    public:
     virtual ~Handler();
