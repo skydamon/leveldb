@@ -125,7 +125,7 @@ namespace leveldb
     // type只有两类，Delete和Value，Value的意思应该就是写入新值
     rep_.push_back(static_cast<char>(kTypeValue));
 
-    //这个函数在req_后面加上32位的size(key),和key的value。
+    //这个函数在req_后面加上变长size(key),和key的value。
     PutLengthPrefixedSlice(&rep_, key);
     //同上，等于把key，value分别按照size value的格式填入了req_
     PutLengthPrefixedSlice(&rep_, value);
@@ -148,8 +148,9 @@ namespace leveldb
 
   namespace
   {  //这个单独一个namespace是干嘛的???
-
+    // 匿名namespace，这个和static的作用域有点像，匿名namespace是为了让namespace里面的函数/类/对象等只能在当前文件访问。
     // handler是个抽象类
+    // It's called an unnamed namespace / anonymous namespace. It's use is to make functions/objects/etc accessible only within that file. It's almost the same as static in C.
     class MemTableInserter : public WriteBatch::Handler
     {
     public:
